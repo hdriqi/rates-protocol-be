@@ -7,7 +7,7 @@ const { writeFileSync } = require('fs')
 const seed = 1
 
 const generatePlanet = () => {
-  const canvas = createCanvas(333, 444)
+  const canvas = createCanvas(333, 480)
   const ctx = canvas.getContext('2d')
 
   const SIZE = 256
@@ -94,23 +94,32 @@ const generatePlanet = () => {
   ctx.fillText(`(${Math.floor(Math.random() * 1000)}, ${Math.floor(Math.random() * 1000)})`, canvas.width - (8 * 3), 8 * 4)
 
   // put Rates
-  ctx.font = "18px Inconsolata"
   ctx.fillStyle = "black"
   ctx.textAlign = "center"
-  ctx.fillText(`Rates ${Math.floor(Math.random() * 1000)}`, canvas.width / 2, canvas.height - (8 * 8))
+  ctx.font = "14px Inconsolata"
+  ctx.fillText(`RATES`, canvas.width / 2, canvas.height - (8 * 12))
+  ctx.font = "bold 18px Inconsolata"
+  ctx.fillText(`${Math.floor(Math.random() * 1000)}`, canvas.width / 2, canvas.height - (8 * 12) + (1.5 * 14))
 
   // put materials
   ctx.fillStyle = "black"
   ctx.textAlign = "center"
-  ctx.fillText(`Plant ${Math.floor(Math.random() * 1000)}`, canvas.width / 2, canvas.height - (8 * 3))
+  ctx.font = "14px Inconsolata"
+  ctx.fillText(`PLANT`, canvas.width / 2, canvas.height - (8 * 5))
+  ctx.font = "bold 18px Inconsolata"
+  ctx.fillText(`${Math.floor(Math.random() * 1000)}`, canvas.width / 2, canvas.height - (8 * 5) + (1.5 * 14))
 
   ctx.fillStyle = "black"
-  ctx.textAlign = "left"
-  ctx.fillText(`Mineral ${Math.floor(Math.random() * 1000)}`, (8 * 3), canvas.height - (8 * 3))
+  ctx.font = "14px Inconsolata"
+  ctx.fillText(`MINERAL`, (8 * 7), canvas.height - (8 * 5))
+  ctx.font = "bold 18px Inconsolata"
+  ctx.fillText(`${Math.floor(Math.random() * 1000)}`, (8 * 7), canvas.height - (8 * 5) + (1.5 * 14))
 
   ctx.fillStyle = "black"
-  ctx.textAlign = "right"
-  ctx.fillText(`Animal ${Math.floor(Math.random() * 1000)}`, canvas.width - (8 * 3), canvas.height - (8 * 3))
+  ctx.font = "14px Inconsolata"
+  ctx.fillText(`ANIMAL`, canvas.width - (8 * 7), canvas.height - (8 * 5))
+  ctx.font = "bold 18px Inconsolata"
+  ctx.fillText(`${Math.floor(Math.random() * 1000)}`, canvas.width - (8 * 7), canvas.height - (8 * 5) + (1.5 * 14))
   const buf = canvas.toBuffer('image/png', { compressionLevel: 3, filters: canvas.PNG_FILTER_NONE })
 
   return buf
