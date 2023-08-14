@@ -2,9 +2,12 @@ const { createCanvas } = require('canvas')
 const alea = require('alea')
 const { createNoise2D } = require('simplex-noise')
 const chroma = require('chroma-js')
-// const { writeFileSync } = require('fs')
+const ColorHash = require('color-hash').default
+const lcg = require('compute-lcg')
 
-const generatePlanet = (seed) => {
+const colorHash = new ColorHash()
+
+const generatePlanet = (seed, amp) => {
   const canvas = createCanvas(333, 480)
   const ctx = canvas.getContext('2d')
 
@@ -17,7 +20,14 @@ const generatePlanet = (seed) => {
   const noise2D = createNoise2D(prng)
   let t = 1
 
-  let am = Math.random()
+  const mrts = Math.floor(Math.random() * 1000)
+  const prts = Math.floor(Math.random() * 1000)
+  const arts = Math.floor(Math.random() * 1000)
+  const _amp = prng()
+
+  const colors = chroma.scale([colorHash.hex(mrts.toString()), colorHash.hex(prts.toString()), colorHash.hex(arts.toString())]).colors(5)
+  const bg = chroma('#000').rgba()
+
   for (let x = 0; x < SIZE; x++) {
     for (let y = 0; y < SIZE; y++) {
       let i = x + y * SIZE
@@ -38,22 +48,27 @@ const generatePlanet = (seed) => {
           return sum / sumOfAmplitudes;
         }
 
-        let curAmp = Array(4).fill(1).map((v, i) => {
-          return i > 0 ? v * ((0.75) ** i) : v
+        let curAmp = Array(8).fill(1).map((v, i) => {
+          // best
+          // return i > 0 ? v * ((0.75) ** i) : v
+          return i > 0 ? v * ((_amp) ** i) : v
         })
 
         const e = fbm_noise(curAmp, nx, ny)
-        if (e > 0) {
-          rgba = chroma('white').rgba()
+        if (e > 0.5) {
+          rgba = chroma(colors[0]).rgba()
+          // rgba = chroma('white').rgba()
         }
-        // else if (e > 0.3) {
-        //   rgba = chroma('white').darken(0.5).rgba()
-        // }
-        // else if (e > 0) {
-        //   rgba = chroma('white').darken(0.8).rgba()
-        // }
+        else if (e > 0.3) {
+          rgba = chroma(colors[0]).darken(1).rgba()
+          // rgba = chroma('white').darken(1).rgba()
+        }
+        else if (e > 0) {
+          rgba = chroma(colors[0]).darken(2).rgba()
+          // rgba = chroma('white').darken(2).rgba()
+        }
         else {
-          rgba = chroma('black').rgba()
+          rgba = chroma(colors[4]).brighten().rgba()
         }
         data[i * 4 + 0] = rgba[0] // R value
         data[i * 4 + 1] = rgba[1]
@@ -67,7 +82,6 @@ const generatePlanet = (seed) => {
         data[i * 4 + 3] = 255
       }
       else {
-        let bg = chroma('#d9d9d9').rgba()
         data[i * 4 + 0] = bg[0]
         data[i * 4 + 1] = bg[1]
         data[i * 4 + 2] = bg[2]
@@ -76,7 +90,7 @@ const generatePlanet = (seed) => {
     }
     t++
   }
-  ctx.fillStyle = "#d9d9d9"
+  ctx.fillStyle = bg
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
   // put planet
@@ -84,7 +98,8 @@ const generatePlanet = (seed) => {
 
   // put NFT ID
   ctx.font = "bold 18px Inconsolata"
-  ctx.fillStyle = "black"
+  ctx.fillStyle = "white"
+
   ctx.textAlign = "left"
   ctx.fillText(`#${seed}`, 8 * 3, 8 * 4)
 
@@ -92,7 +107,6 @@ const generatePlanet = (seed) => {
   ctx.fillText(`(${Math.floor(Math.random() * 1000)}, ${Math.floor(Math.random() * 1000)})`, canvas.width - (8 * 3), 8 * 4)
 
   // put Rates
-  ctx.fillStyle = "black"
   ctx.textAlign = "center"
   ctx.font = "14px Inconsolata"
   ctx.fillText(`RATES`, canvas.width / 2, canvas.height - (8 * 12))
@@ -100,34 +114,57 @@ const generatePlanet = (seed) => {
   ctx.fillText(`${Math.floor(Math.random() * 1000)} RTS`, canvas.width / 2, canvas.height - (8 * 12) + (1.5 * 14))
 
   // put materials
-  ctx.fillStyle = "black"
   ctx.textAlign = "center"
   ctx.font = "14px Inconsolata"
   ctx.fillText(`PLANT`, canvas.width / 2, canvas.height - (8 * 5))
   ctx.font = "bold 18px Inconsolata"
-  ctx.fillText(`${Math.floor(Math.random() * 1000)} PRTS`, canvas.width / 2, canvas.height - (8 * 5) + (1.5 * 14))
+  ctx.fillText(`${prts} PRTS`, canvas.width / 2, canvas.height - (8 * 5) + (1.5 * 14))
 
-  ctx.fillStyle = "black"
   ctx.font = "14px Inconsolata"
   ctx.fillText(`MINERAL`, (8 * 7), canvas.height - (8 * 5))
   ctx.font = "bold 18px Inconsolata"
-  ctx.fillText(`${Math.floor(Math.random() * 1000)} MRTS`, (8 * 7), canvas.height - (8 * 5) + (1.5 * 14))
+  ctx.fillText(`${mrts} MRTS`, (8 * 7), canvas.height - (8 * 5) + (1.5 * 14))
 
-  ctx.fillStyle = "black"
   ctx.font = "14px Inconsolata"
   ctx.fillText(`ANIMAL`, canvas.width - (8 * 7), canvas.height - (8 * 5))
   ctx.font = "bold 18px Inconsolata"
-  ctx.fillText(`${Math.floor(Math.random() * 1000)} ARTS`, canvas.width - (8 * 7), canvas.height - (8 * 5) + (1.5 * 14))
+  ctx.fillText(`${arts} ARTS`, canvas.width - (8 * 7), canvas.height - (8 * 5) + (1.5 * 14))
+
+  function addlight(ctx, x, y) {
+    var grd = ctx.createRadialGradient(x, y, SIZE / 16, x, y, SIZE / 2)
+    grd.addColorStop(0, "transparent")
+    grd.addColorStop(1, "rgba(0,0,0,0.95)")
+    ctx.fillStyle = grd
+    ctx.fillRect(canvas.width / 2 - SIZE / 2, 8 * 8, SIZE, SIZE)
+  }
+  // put light
+  addlight(ctx, canvas.width / 2, 190)
+
+  ctx.globalCompositeOperation = "lighter"
+
+  let stars = 250
+  for (var i = 0; i < stars; i++) {
+    const x = Math.random() * canvas.width
+    const y = Math.random() * canvas.height
+    const radius = Math.random() * 1.2
+    const dx = x - Math.floor(canvas.width / 2)
+    const dy = y - 190
+    const distanceSqrd = dx ** 2 + dy ** 2
+    if (distanceSqrd > ((((SIZE + 20) / 2) ** 2))) {
+      ctx.beginPath()
+      ctx.arc(x, y, radius, 0, 360)
+      ctx.fillStyle = 'hsla(200,100%,50%,0.8)'
+      ctx.fill()
+    }
+  }
 
   const buf = canvas.toBuffer('image/png', { compressionLevel: 3, filters: canvas.PNG_FILTER_NONE })
 
   return buf
 }
 
-const main = (seed) => {
-  const x = generatePlanet(seed)
-  // writeFileSync('./planet.png', x)
-  return x
+const main = (seed, amp = 0.75) => {
+  return generatePlanet(seed, amp)
 }
 
 module.exports = main

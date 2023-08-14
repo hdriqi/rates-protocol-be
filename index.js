@@ -9,6 +9,12 @@ app.get('/:id', (req, res) => {
   res.send(buffer)
 })
 
+app.get('/:id/:amp', (req, res) => {
+  const buffer = render(req.params.id, req.params.amp)
+  res.contentType('image/png')
+  res.send(buffer)
+})
+
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
 })
