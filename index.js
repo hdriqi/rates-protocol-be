@@ -10,7 +10,7 @@ const { MongoClient } = require('mongodb')
 const client = new MongoClient(process.env.MONGO_URI)
 
 app.get('/render/:id', async (req, res) => {
-  const data = await client.db('rates-protocol').collection('planets').findOne({ nft_id: req.params.id })
+  const data = await client.db('rates-protocol').collection('planets').findOne({ nft_id: parseInt(req.params.id) })
 
   const buffer = render.main({
     seed: data.digest,
