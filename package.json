@@ -4,17 +4,21 @@
 	"main": "index.js",
 	"license": "MIT",
 	"dependencies": {
+		"@thirdweb-dev/sdk": "^3.10.50",
 		"alea": "^1.0.1",
 		"canvas": "^2.11.2",
 		"chroma-js": "^2.4.2",
 		"color-hash": "^2.0.2",
 		"compute-lcg": "^1.0.0",
+		"dotenv": "^16.3.1",
+		"ethers": "5.7.2",
 		"express": "^4.18.2",
 		"gifenc": "^1.0.3",
+		"mongodb": "^5.7.0",
 		"simplex-noise": "^4.0.1"
 	},
 	"scripts": {
-		"dev": "nodemon --watch * index.js"
+		"dev": "nodemon index.js"
 	},
 	"devDependencies": {
 		"nodemon": "^3.0.1"
