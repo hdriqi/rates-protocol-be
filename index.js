@@ -30,6 +30,24 @@ app.get('/render/:id', async (req, res) => {
   res.send(buffer)
 })
 
+app.get('/planets/:id', async (req, res) => {
+  const data = await client.db('rates-protocol').collection('planets').findOne({ nft_id: parseInt(req.params.id) })
+
+  const buffer = render.main({
+    seed: data.digest,
+    id: data.nft_id,
+    px: data.x,
+    py: data.y,
+    rts: data.rts,
+    mrts: data.mrts,
+    prts: data.prts,
+    arts: data.arts
+  })
+
+  res.contentType('image/png')
+  res.send(buffer)
+})
+
 app.get('/planets', async (req, res) => {
   const sort = req.query.sort ? {
     [req.query.sort.split('::')[0]]: parseInt(req.query.sort.split('::')[1])

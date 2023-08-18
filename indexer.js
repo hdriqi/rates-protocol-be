@@ -19,6 +19,18 @@ const processTransferEvent = async (event, { client, provider, contract }) => {
     ])
     console.log(digest)
     await client.db('rates-protocol').collection('planets').insertOne({
+      id: event.data.id.toNumber(),
+      image: `https://assets.ratesprotocol.com/planets/${event.data.id}`,
+      attributes: [
+        {
+          "value": stats[4].toNumber(),
+          "trait_type": "X"
+        },
+        {
+          "value": stats[5].toNumber(),
+          "trait_type": "Y"
+        }
+      ],
       rts: stats[0].toNumber(),
       prts: stats[1].toNumber(),
       arts: stats[2].toNumber(),
@@ -73,14 +85,14 @@ const main = async () => {
 
   const lastBlock = await provider.getBlockNumber()
 
-  const { value: lastIndexedBlock } = await client.db('rates-protocol').collection('kv').findOne({
+  const lastIndexedBlock = await client.db('rates-protocol').collection('kv').findOne({
     key: 'lastBlock'
   })
 
-  if (lastBlock > lastIndexedBlock) {
+  if (!lastIndexedBlock || lastIndexedBlock && lastBlock > lastIndexedBlock.value) {
     console.log(`getting past events ...`)
     const filters = {
-      fromBlock: lastIndexedBlock,
+      fromBlock: lastIndexedBlock ? lastIndexedBlock.value : 8499192,
       toBlock: 'latest',
       order: 'asc',
     }
