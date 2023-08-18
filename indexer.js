@@ -20,7 +20,7 @@ const processTransferEvent = async (event, { client, provider, contract }) => {
     console.log(digest)
     await client.db(process.env.DB).collection('planets').insertOne({
       id: event.data.tokenId.toNumber(),
-      image: `https://assets.ratesprotocol.com/planets/${event.data.id}`,
+      image: `https://assets.ratesprotocol.com/planets/${event.data.tokenId}`,
       attributes: [
         {
           "display_type": "number",
