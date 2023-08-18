@@ -23,10 +23,12 @@ const processTransferEvent = async (event, { client, provider, contract }) => {
       image: `https://assets.ratesprotocol.com/planets/${event.data.id}`,
       attributes: [
         {
+          "display_type": "number",
           "value": stats[4].toNumber(),
           "trait_type": "X"
         },
         {
+          "display_type": "number",
           "value": stats[5].toNumber(),
           "trait_type": "Y"
         }
