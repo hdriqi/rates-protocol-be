@@ -36,7 +36,6 @@ app.get('/planets', async (req, res) => {
   } : {
     nft_id: -1
   }
-  console.log(sort)
   const skip = parseInt(req.query.skip || 0)
   const limit = parseInt(req.query.limit || 20)
   const data = await client.db('rates-protocol').collection('planets').find().sort(sort).skip(skip).limit(limit).toArray()

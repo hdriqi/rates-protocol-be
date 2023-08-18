@@ -46,8 +46,8 @@ async function main() {
   console.log("nonce", nonce);
   console.log("hash", hash);
 
-  // const result = await contract.call('mint', [nonce, hash])
-  // console.log(result)
+  const result = await contract.call('mint', [nonce, hash])
+  console.log(result)
 }
 
 main()
