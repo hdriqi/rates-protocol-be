@@ -6,7 +6,6 @@
 	"dependencies": {
 		"@thirdweb-dev/sdk": "^3.10.50",
 		"alea": "^1.0.1",
-		"canvas": "^2.11.2",
 		"chroma-js": "^2.4.2",
 		"color-hash": "^2.0.2",
 		"compute-lcg": "^1.0.0",
