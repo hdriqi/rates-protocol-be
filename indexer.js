@@ -7,19 +7,19 @@ const ethers = require("ethers")
 const processTransferEvent = async (event, { client, provider, contract }) => {
   console.log(event)
   const planet = await client.db('rates-protocol').collection('planets').findOne({
-    nft_id: event.data.id.toNumber()
+    nft_id: event.data.tokenId.toNumber()
   })
   const blockDetail = await provider.getBlock(event.transaction.blockNumber)
   if (!planet) {
     const stats = await contract.call('getTotalStatsPerTokenId', [
-      event.data.id.toNumber()
+      event.data.tokenId.toNumber()
     ])
     const digest = await contract.call('digestForTokenId', [
-      event.data.id.toNumber()
+      event.data.tokenId.toNumber()
     ])
     console.log(digest)
     await client.db('rates-protocol').collection('planets').insertOne({
-      id: event.data.id.toNumber(),
+      id: event.data.tokenId.toNumber(),
       image: `https://assets.ratesprotocol.com/planets/${event.data.id}`,
       attributes: [
         {
@@ -38,7 +38,7 @@ const processTransferEvent = async (event, { client, provider, contract }) => {
       x: stats[4].toNumber(),
       y: stats[5].toNumber(),
       owner: event.data.to,
-      nft_id: event.data.id.toNumber(),
+      nft_id: event.data.tokenId.toNumber(),
       digest: digest,
       created_at: blockDetail.timestamp * 1000,
       updated_at: blockDetail.timestamp * 1000
@@ -46,7 +46,7 @@ const processTransferEvent = async (event, { client, provider, contract }) => {
   }
   else {
     await client.db('rates-protocol').collection('planets').findOneAndUpdate({
-      nft_id: event.data.id.toNumber()
+      nft_id: event.data.tokenId.toNumber()
     }, {
       $set: {
         owner: event.data.to,
@@ -68,7 +68,7 @@ const processTransferEvent = async (event, { client, provider, contract }) => {
   }, {
     upsert: true
   })
-  console.log(`processed nft #${event.data.id.toString()}`)
+  console.log(`processed nft #${event.data.tokenId.toString()}`)
 }
 
 const main = async () => {
