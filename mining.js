@@ -5,6 +5,7 @@ const { ThirdwebSDK } = require('@thirdweb-dev/sdk')
 const solveChallenge = async (challengeNumber, sender, difficulty) => {
   let nonce = 1;
   let hash;
+  let counter = 0
   while (true) {
     console.log(nonce);
     hash = ethers.utils.solidityKeccak256(
@@ -17,7 +18,9 @@ const solveChallenge = async (challengeNumber, sender, difficulty) => {
       break;
     }
     nonce = ethers.utils.hexlify(ethers.utils.randomBytes(32));
+    counter++
   }
+  console.log(counter)
 
   return [nonce, hash];
 };
@@ -43,8 +46,8 @@ async function main() {
   console.log("nonce", nonce);
   console.log("hash", hash);
 
-  const result = await contract.call('mint', [nonce, hash])
-  console.log(result)
+  // const result = await contract.call('mint', [nonce, hash])
+  // console.log(result)
 }
 
 main()
