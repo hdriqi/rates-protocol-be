@@ -30,7 +30,7 @@ async function main() {
     secretKey: process.env.THIRD_WEB_SECRET_KEY,
   })
 
-  const contract = await sdk.getContract('0xF72b546814a88DF07C0Ee772393827cd1310FC74')
+  const contract = await sdk.getContract(process.env.CONTRACT_ADDRESS)
   const address = await sdk.wallet.getAddress();
 
   const miningDifficulty = await contract.call('getMiningDifficulty')

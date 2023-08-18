@@ -81,7 +81,7 @@ const main = async () => {
   const provider = new ethers.providers.JsonRpcProvider(rpc)
 
   console.log(`getting contract ...`)
-  const contract = await sdk.getContract('0xF72b546814a88DF07C0Ee772393827cd1310FC74')
+  const contract = await sdk.getContract(process.env.CONTRACT_ADDRESS);
 
   const lastBlock = await provider.getBlockNumber()
 
