@@ -1,12 +1,12 @@
 require('dotenv').config()
 const { ThirdwebSDK } = require('@thirdweb-dev/sdk')
-const { BaseGoerli } = require('@thirdweb-dev/chains')
+const { BaseGoerli, Base } = require('@thirdweb-dev/chains')
 const { MongoClient } = require('mongodb')
 const ethers = require("ethers")
 
 const processTransferEvent = async (event, { client, provider, contract }) => {
   console.log(event)
-  const planet = await client.db('rates-protocol').collection('planets').findOne({
+  const planet = await client.db(process.env.DB).collection('planets').findOne({
     nft_id: event.data.tokenId.toNumber()
   })
   const blockDetail = await provider.getBlock(event.transaction.blockNumber)
@@ -18,7 +18,7 @@ const processTransferEvent = async (event, { client, provider, contract }) => {
       event.data.tokenId.toNumber()
     ])
     console.log(digest)
-    await client.db('rates-protocol').collection('planets').insertOne({
+    await client.db(process.env.DB).collection('planets').insertOne({
       id: event.data.tokenId.toNumber(),
       image: `https://assets.ratesprotocol.com/planets/${event.data.id}`,
       attributes: [
@@ -47,7 +47,7 @@ const processTransferEvent = async (event, { client, provider, contract }) => {
     })
   }
   else {
-    await client.db('rates-protocol').collection('planets').findOneAndUpdate({
+    await client.db(process.env.DB).collection('planets').findOneAndUpdate({
       nft_id: event.data.tokenId.toNumber()
     }, {
       $set: {
@@ -57,11 +57,11 @@ const processTransferEvent = async (event, { client, provider, contract }) => {
     })
   }
 
-  await client.db('rates-protocol').collection('event_logs').insertOne({
+  await client.db(process.env.DB).collection('event_logs').insertOne({
     event
   })
 
-  await client.db('rates-protocol').collection('kv').findOneAndUpdate({
+  await client.db(process.env.DB).collection('kv').findOneAndUpdate({
     key: 'lastBlock'
   }, {
     $set: {
@@ -76,10 +76,21 @@ const processTransferEvent = async (event, { client, provider, contract }) => {
 const main = async () => {
   console.log(`connecting to db & rpc ...`)
   const client = new MongoClient(process.env.MONGO_URI)
-  const sdk = new ThirdwebSDK(BaseGoerli.slug, {
-    secretKey: process.env.THIRD_WEB_SECRET_KEY,
-  })
-  const rpc = BaseGoerli.rpc[0].replace('${THIRDWEB_API_KEY}', process.env.THIRD_WEB_SECRET_KEY)
+
+  let sdk
+  let rpc
+
+  if (process.env.NODE_ENV === "mainnet") {
+    sdk = new ThirdwebSDK(Base.slug, {
+      secretKey: process.env.THIRD_WEB_SECRET_KEY,
+    })
+    rpc = Base.rpc[0].replace('${THIRDWEB_API_KEY}', process.env.THIRD_WEB_SECRET_KEY)
+  } else if (process.env.NODE_ENV === "testnet") {
+    sdk = new ThirdwebSDK(BaseGoerli.slug, {
+      secretKey: process.env.THIRD_WEB_SECRET_KEY,
+    })
+    rpc = BaseGoerli.rpc[0].replace('${THIRDWEB_API_KEY}', process.env.THIRD_WEB_SECRET_KEY)
+  }
   const provider = new ethers.providers.JsonRpcProvider(rpc)
 
   console.log(`getting contract ...`)
@@ -87,7 +98,7 @@ const main = async () => {
 
   const lastBlock = await provider.getBlockNumber()
 
-  const lastIndexedBlock = await client.db('rates-protocol').collection('kv').findOne({
+  const lastIndexedBlock = await client.db(process.env.DB).collection('kv').findOne({
     key: 'lastBlock'
   })
 
